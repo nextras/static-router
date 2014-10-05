@@ -14,9 +14,6 @@ use Nette\Http\Url;
  */
 class StaticRouter extends Nette\Object implements IRouter
 {
-	/** @var array (slug => Presenter:action) */
-	private $tableIn;
-
 	/** @var array (Presenter:action => slug) */
 	private $tableOut;
 
@@ -30,13 +27,8 @@ class StaticRouter extends Nette\Object implements IRouter
 	 */
 	public function __construct(array $routingTable, $flags = 0)
 	{
-		$this->tableIn = array();
 		$this->tableOut = $routingTable;
 		$this->flags = $flags;
-
-		foreach ($routingTable as $destination => $slug) {
-			$this->tableIn[rtrim($slug, '/')] = $destination;
-		}
 	}
 
 
@@ -48,12 +40,19 @@ class StaticRouter extends Nette\Object implements IRouter
 	public function match(HttpRequest $httpRequest)
 	{
 		$slug = rtrim($httpRequest->getUrl()->getPathInfo(), '/');
-		if (!isset($this->tableIn[$slug])) {
+		foreach ($this->tableOut as $destination2 => $slug2) {
+			if ($slug === rtrim($slug2, '/')) {
+				$destination = $destination2;
+				break;
+			}
+		}
+
+		if (!isset($destination)) {
 			return NULL;
 		}
 
 		$params = $httpRequest->getQuery();
-		list($presenter, $params['action']) = explode(':', $this->tableIn[$slug]);
+		list($presenter, $params['action']) = explode(':', $destination);
 
 		return new AppRequest(
 			$presenter,
