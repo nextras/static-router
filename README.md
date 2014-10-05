@@ -1,4 +1,4 @@
-Nextras\Static-router
+Nextras\StaticRouter
 =====================
 
 [![Build Status](https://travis-ci.org/nextras/static-router.svg?branch=master)](https://travis-ci.org/nextras/static-router)
@@ -12,7 +12,7 @@ Add to your composer.json:
 
 ```
 "require": {
-	"nextras/static-router": "@dev"
+	"nextras/static-router": "~1.0@dev"
 }
 ```
 
