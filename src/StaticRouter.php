@@ -90,7 +90,7 @@ class StaticRouter extends Nette\Object implements IRouter
 		unset($params['action']);
 		$schema = ($this->flags & self::SECURED ? 'https' : 'http') . '://';
 		$slug = $this->tableOut[$key];
-		$query = ($params ? '?' . http_build_query($params) : '');
+		$query = (($tmp = http_build_query($params)) ? '?' . $tmp : '');
 		$url = $schema . $refUrl->getAuthority() . $refUrl->getBasePath() . $slug . $query;
 
 		return $url;

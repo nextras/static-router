@@ -89,6 +89,12 @@ class StaticRouterTest extends Tester\TestCase
 		Assert::same('http://localhost/web/view/?a=1&b=2', $url);
 
 		$url = $this->router->constructUrl(
+			new AppRequest('Article', 'GET', array('action' => 'view', 'a' => NULL)),
+			$refUrl
+		);
+		Assert::same('http://localhost/web/view/', $url);
+
+		$url = $this->router->constructUrl(
 			new AppRequest('Article', 'GET', array('action' => 'edit', 'a' => 1, 'b' => 2)),
 			$refUrl
 		);
