@@ -26,6 +26,7 @@ class StaticRouterTest extends Tester\TestCase
 
 		$this->router = new StaticRouter(array(
 			'Homepage:default' => '',
+			'Homepage:index' => 'index.php',
 			'Article:view' => 'view/',
 		));
 	}
@@ -36,6 +37,10 @@ class StaticRouterTest extends Tester\TestCase
 		$httpRequest = $this->createHttpRequest('http://localhost/web/', '/web/');
 		$appRequest = $this->router->match($httpRequest);
 		$this->assertAppRequest($appRequest, 'Homepage', array('action' => 'default'));
+
+		$httpRequest = $this->createHttpRequest('http://localhost/web/index.php', '/web/index.php');
+		$appRequest = $this->router->match($httpRequest);
+		$this->assertAppRequest($appRequest, 'Homepage', array('action' => 'index'));
 
 		$httpRequest = $this->createHttpRequest('http://localhost/web/view', '/web/');
 		$appRequest = $this->router->match($httpRequest);

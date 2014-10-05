@@ -39,7 +39,8 @@ class StaticRouter extends Nette\Object implements IRouter
 	 */
 	public function match(HttpRequest $httpRequest)
 	{
-		$slug = rtrim($httpRequest->getUrl()->getPathInfo(), '/');
+		$url = $httpRequest->getUrl();
+		$slug = rtrim(substr($url->getPath(), strlen($url->getBasePath())), '/');
 		foreach ($this->tableOut as $destination2 => $slug2) {
 			if ($slug === rtrim($slug2, '/')) {
 				$destination = $destination2;
