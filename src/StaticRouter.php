@@ -20,8 +20,11 @@ class StaticRouter extends Nette\Object implements IRouter
 	/** @var int */
 	private $flags;
 
-	/** @var array (refUrlHash => baseUrl) */
-	private $baseUrlCache;
+	/** @var Url|NULL */
+	private $lastRefUrl;
+
+	/** @var string */
+	private $lastBaseUrl;
 
 
 	/**
@@ -91,16 +94,16 @@ class StaticRouter extends Nette\Object implements IRouter
 			return NULL;
 		}
 
-		$baseUrl = & $this->baseUrlCache[spl_object_hash($refUrl)];
-		if ($baseUrl === NULL) {
+		if ($this->lastRefUrl !== $refUrl) {
 			$schema = ($this->flags & self::SECURED ? 'https' : 'http') . '://';
-			$baseUrl = $schema . $refUrl->getAuthority() . $refUrl->getBasePath();
+			$this->lastBaseUrl = $schema . $refUrl->getAuthority() . $refUrl->getBasePath();
+			$this->lastRefUrl = $refUrl;
 		}
 
 		unset($params['action']);
 		$slug = $this->tableOut[$key];
 		$query = (($tmp = http_build_query($params)) ? '?' . $tmp : '');
-		$url = $baseUrl . $slug . $query;
+		$url = $this->lastBaseUrl . $slug . $query;
 
 		return $url;
 	}
