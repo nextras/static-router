@@ -20,7 +20,11 @@ Add to your composer.json:
 ### Example
 
 ```php
-$router = new Nextras\Routing\StaticRouter([
+use Nextras\Routing\StaticRouter;
+
+$router = new StaticRouter(['Homepage:default' => 'index.php'], StaticRouter::ONE_WAY);
+
+$router = new StaticRouter([
 	'Homepage:default' => '',
 	'Auth:signIn' => 'sign-in',
 	'Auth:signOut' => 'sign-out',
