@@ -23,5 +23,10 @@
 	},
 	"autoload": {
 		"psr-4": { "Nextras\\Routing\\": "src/" }
+	},
+	"extra": {
+		"branch-alias": {
+			"dev-master": "1.0.x-dev"
+		}
 	}
 }
