@@ -15,3 +15,15 @@ Add to your composer.json:
 	"nextras/static-router": "@dev"
 }
 ```
+
+
+### Example
+
+```php
+$router = new Nextras\Routing\StaticRouter([
+	'Homepage:default' => '',
+	'Auth:signIn' => 'sign-in',
+	'Auth:signOut' => 'sign-out',
+	'Auth:signUp' => 'sign-up',
+]);
+```
