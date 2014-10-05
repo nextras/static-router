@@ -20,6 +20,9 @@ class StaticRouter extends Nette\Object implements IRouter
 	/** @var int */
 	private $flags;
 
+	/** @var array (refUrlHash => baseUrl) */
+	private $baseUrlCache;
+
 
 	/**
 	 * @param array $routingTable Presenter:action => slug
@@ -40,7 +43,7 @@ class StaticRouter extends Nette\Object implements IRouter
 	public function match(HttpRequest $httpRequest)
 	{
 		$url = $httpRequest->getUrl();
-		$slug = rtrim(substr($url->getPath(), strlen($url->getBasePath())), '/');
+		$slug = rtrim(substr($url->getPath(), strrpos($url->getScriptPath(), '/') + 1), '/');
 		foreach ($this->tableOut as $destination2 => $slug2) {
 			if ($slug === rtrim($slug2, '/')) {
 				$destination = $destination2;
@@ -88,11 +91,16 @@ class StaticRouter extends Nette\Object implements IRouter
 			return NULL;
 		}
 
+		$baseUrl = & $this->baseUrlCache[spl_object_hash($refUrl)];
+		if ($baseUrl === NULL) {
+			$schema = ($this->flags & self::SECURED ? 'https' : 'http') . '://';
+			$baseUrl = $schema . $refUrl->getAuthority() . $refUrl->getBasePath();
+		}
+
 		unset($params['action']);
-		$schema = ($this->flags & self::SECURED ? 'https' : 'http') . '://';
 		$slug = $this->tableOut[$key];
 		$query = (($tmp = http_build_query($params)) ? '?' . $tmp : '');
-		$url = $schema . $refUrl->getAuthority() . $refUrl->getBasePath() . $slug . $query;
+		$url = $baseUrl . $slug . $query;
 
 		return $url;
 	}
