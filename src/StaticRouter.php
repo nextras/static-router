@@ -59,7 +59,9 @@ class StaticRouter extends Nette\Object implements IRouter
 		}
 
 		$params = $httpRequest->getQuery();
-		list($presenter, $params['action']) = explode(':', $destination);
+		$pos = strrpos($destination, ':');
+		$presenter = substr($destination, 0, $pos);
+		$params['action'] = substr($destination, $pos + 1);
 
 		return new AppRequest(
 			$presenter,

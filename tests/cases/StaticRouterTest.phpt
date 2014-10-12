@@ -28,6 +28,7 @@ class StaticRouterTest extends Tester\TestCase
 			'Homepage:default' => '',
 			'Homepage:index' => 'index.php',
 			'Article:view' => 'view/',
+			'Admin:Dashboard:view' => 'admin/dashboard',
 		));
 	}
 
@@ -61,6 +62,10 @@ class StaticRouterTest extends Tester\TestCase
 		$httpRequest = $this->createHttpRequest('http://localhost/view', '/');
 		$appRequest = $this->router->match($httpRequest);
 		$this->assertAppRequest($appRequest, 'Article', array('action' => 'view'));
+
+		$httpRequest = $this->createHttpRequest('http://localhost/web/admin/dashboard', '/web/');
+		$appRequest = $this->router->match($httpRequest);
+		$this->assertAppRequest($appRequest, 'Admin:Dashboard', array('action' => 'view'));
 	}
 
 
@@ -104,6 +109,12 @@ class StaticRouterTest extends Tester\TestCase
 			$refUrl
 		);
 		Assert::null($url);
+
+		$url = $this->router->constructUrl(
+			new AppRequest('Admin:Dashboard', 'GET', array('action' => 'view')),
+			$refUrl
+		);
+		Assert::same('http://localhost/web/admin/dashboard', $url);
 	}
 
 
