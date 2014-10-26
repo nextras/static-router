@@ -3,139 +3,157 @@
 namespace Nextras\Routing;
 
 use Nette;
-use Nette\Application\IRouter;
 use Nette\Application\Request as AppRequest;
 use Nette\Http\Request as HttpRequest;
 use Nette\Http\UrlScript;
 use Tester;
 use Tester\Assert;
-use Mockery;
 
 require __DIR__ . '/../bootstrap.php';
 
 
 class StaticRouterTest extends Tester\TestCase
 {
-	/** @var IRouter */
-	private $router;
+	/** @var array */
+	private $tableOut = array(
+		'Homepage:default' => '',
+		'Homepage:index' => 'index.php',
+		'Article:view' => 'view/',
+		'Admin:Dashboard:view' => 'admin/dashboard',
+	);
 
 
-	protected function setUp()
+	/**
+	 * @dataProvider provideMatchData
+	 */
+	public function testMatch($fullUrl, $scriptPath, $presenter, array $params = array())
 	{
-		parent::setUp();
+		$url = new UrlScript($fullUrl);
+		$url->setScriptPath($scriptPath);
+		$httpRequest = new HttpRequest($url);
 
-		$this->router = new StaticRouter(array(
-			'Homepage:default' => '',
-			'Homepage:index' => 'index.php',
-			'Article:view' => 'view/',
-			'Admin:Dashboard:view' => 'admin/dashboard',
-		));
+		$router = new StaticRouter($this->tableOut);
+		$appRequest = $router->match($httpRequest);
+
+		if ($presenter === NULL) {
+			Assert::null($appRequest);
+
+		} else {
+			Assert::type('Nette\Application\Request', $appRequest);
+			Assert::same($presenter, $appRequest->getPresenterName());
+			Assert::same($params, $appRequest->getParameters());
+		}
 	}
 
 
-	public function testMatch()
+	public function provideMatchData()
 	{
-		$httpRequest = $this->createHttpRequest('http://localhost/web/', '/web/');
-		$appRequest = $this->router->match($httpRequest);
-		$this->assertAppRequest($appRequest, 'Homepage', array('action' => 'default'));
-
-		$httpRequest = $this->createHttpRequest('http://localhost/web/index.php', '/web/index.php');
-		$appRequest = $this->router->match($httpRequest);
-		$this->assertAppRequest($appRequest, 'Homepage', array('action' => 'index'));
-
-		$httpRequest = $this->createHttpRequest('http://localhost/web/view', '/web/');
-		$appRequest = $this->router->match($httpRequest);
-		$this->assertAppRequest($appRequest, 'Article', array('action' => 'view'));
-
-		$httpRequest = $this->createHttpRequest('http://localhost/web/view/', '/web/');
-		$appRequest = $this->router->match($httpRequest);
-		$this->assertAppRequest($appRequest, 'Article', array('action' => 'view'));
-
-		$httpRequest = $this->createHttpRequest('http://localhost/web/view?id=123&type=foo', '/web/');
-		$appRequest = $this->router->match($httpRequest);
-		$this->assertAppRequest($appRequest, 'Article', array('action' => 'view', 'id' => '123', 'type' => 'foo'));
-
-		$httpRequest = $this->createHttpRequest('http://localhost/web/XXX/', '/web/');
-		$appRequest = $this->router->match($httpRequest);
-		$this->assertAppRequest($appRequest, NULL);
-
-		$httpRequest = $this->createHttpRequest('http://localhost/view', '/');
-		$appRequest = $this->router->match($httpRequest);
-		$this->assertAppRequest($appRequest, 'Article', array('action' => 'view'));
-
-		$httpRequest = $this->createHttpRequest('http://localhost/web/admin/dashboard', '/web/');
-		$appRequest = $this->router->match($httpRequest);
-		$this->assertAppRequest($appRequest, 'Admin:Dashboard', array('action' => 'view'));
+		return array(
+			array(
+				'http://localhost/web/',
+				'/web/',
+				'Homepage',
+				array('action' => 'default')
+			),
+			array(
+				'http://localhost/web/index.php',
+				'/web/index.php',
+				'Homepage',
+				array('action' => 'index')
+			),
+			array(
+				'http://localhost/web/view',
+				'/web/',
+				'Article',
+				array('action' => 'view')
+			),
+			array(
+				'http://localhost/web/view/',
+				'/web/',
+				'Article',
+				array('action' => 'view')
+			),
+			array(
+				'http://localhost/web/view?id=123&type=foo',
+				'/web/',
+				'Article',
+				array('id' => '123', 'type' => 'foo', 'action' => 'view')
+			),
+			array(
+				'http://localhost/web/XXX/',
+				'/web/',
+				NULL
+			),
+			array(
+				'http://localhost/view',
+				'/',
+				'Article',
+				array('action' => 'view')
+			),
+			array(
+				'http://localhost/web/admin/dashboard',
+				'/web/',
+				'Admin:Dashboard',
+				array('action' => 'view')
+			),
+		);
 	}
 
 
-	public function testConstructUrl()
+	/**
+	 * @dataProvider provideConstructUrlData
+	 */
+	public function testConstructUrl($presenter, $params, $url)
 	{
 		$refUrl = new UrlScript('http://localhost/web/foo/bar/baz');
 		$refUrl->setScriptPath('/web/');
 
-		$url = $this->router->constructUrl(
-			new AppRequest('Homepage', 'GET', array()),
+		$router = new StaticRouter($this->tableOut);
+		Assert::same($url, $router->constructUrl(
+			new AppRequest($presenter, 'GET', $params),
 			$refUrl
-		);
-		Assert::null($url);
-
-		$url = $this->router->constructUrl(
-			new AppRequest('Homepage', 'GET', array('action' => 'default')),
-			$refUrl
-		);
-		Assert::same('http://localhost/web/', $url);
-
-		$url = $this->router->constructUrl(
-			new AppRequest('Article', 'GET', array('action' => 'view')),
-			$refUrl
-		);
-		Assert::same('http://localhost/web/view/', $url);
-
-		$url = $this->router->constructUrl(
-			new AppRequest('Article', 'GET', array('action' => 'view', 'a' => 1, 'b' => 2)),
-			$refUrl
-		);
-		Assert::same('http://localhost/web/view/?a=1&b=2', $url);
-
-		$url = $this->router->constructUrl(
-			new AppRequest('Article', 'GET', array('action' => 'view', 'a' => NULL)),
-			$refUrl
-		);
-		Assert::same('http://localhost/web/view/', $url);
-
-		$url = $this->router->constructUrl(
-			new AppRequest('Article', 'GET', array('action' => 'edit', 'a' => 1, 'b' => 2)),
-			$refUrl
-		);
-		Assert::null($url);
-
-		$url = $this->router->constructUrl(
-			new AppRequest('Admin:Dashboard', 'GET', array('action' => 'view')),
-			$refUrl
-		);
-		Assert::same('http://localhost/web/admin/dashboard', $url);
+		));
 	}
 
 
-	private function createHttpRequest($url, $scriptPath)
+	public function provideConstructUrlData()
 	{
-		$url = new UrlScript($url);
-		$url->setScriptPath($scriptPath);
-		$httpRequest = new HttpRequest($url);
-		return $httpRequest;
-	}
-
-
-	private function assertAppRequest($appRequest, $presenter, $params = array())
-	{
-		if ($presenter) {
-			Assert::type('Nette\Application\Request', $appRequest);
-			Assert::same($presenter, $appRequest->getPresenterName());
-			Assert::equal($params, $appRequest->getParameters());
-		} else {
-			Assert::null($appRequest);
-		}
+		return array(
+			array(
+				'Homepage',
+				array(),
+				NULL,
+			),
+			array(
+				'Homepage',
+				array('action' => 'default'),
+				'http://localhost/web/',
+			),
+			array(
+				'Article',
+				array('action' => 'view'),
+				'http://localhost/web/view/',
+			),
+			array(
+				'Article',
+				array('action' => 'view', 'a' => 1, 'b' => 2),
+				'http://localhost/web/view/?a=1&b=2',
+			),
+			array(
+				'Article',
+				array('action' => 'view', 'a' => NULL),
+				'http://localhost/web/view/',
+			),
+			array(
+				'Article',
+				array('action' => 'edit', 'a' => 1, 'b' => 2), NULL
+			),
+			array(
+				'Admin:Dashboard',
+				array('action' => 'view'),
+				'http://localhost/web/admin/dashboard',
+			),
+		);
 	}
 
 }
