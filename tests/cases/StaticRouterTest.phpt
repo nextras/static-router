@@ -12,6 +12,9 @@ use Tester\Assert;
 require __DIR__ . '/../bootstrap.php';
 
 
+/**
+ * @testCase
+ */
 class StaticRouterTest extends Tester\TestCase
 {
 	/** @var array */
