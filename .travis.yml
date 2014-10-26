@@ -6,17 +6,13 @@ php:
     - 5.6
     - hhvm
 
-matrix:
-    allow_failures:
-        - php: hhvm
+before_script:
+    - composer install --no-interaction
 
-script: ./vendor/bin/tester ./tests/cases
+script:
+    - ./vendor/bin/tester -s -p php ./tests/cases
 
 after_failure:
     # Print *.actual content & log content
     - for i in $(find tests -name \*.actual); do echo "--- $i"; cat $i; echo; echo; done
     - for i in $(find tests -name \*.log); do echo "--- $i"; cat $i; echo; echo; done
-
-before_script:
-    # Install dependencies
-    - composer install --no-interaction --dev --prefer-source
