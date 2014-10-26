@@ -156,6 +156,26 @@ class StaticRouterTest extends Tester\TestCase
 		);
 	}
 
+
+	public function testOneWayFlag()
+	{
+		$router = new StaticRouter($this->tableOut, StaticRouter::ONE_WAY);
+		Assert::null($router->constructUrl(
+			new AppRequest('Homepage', 'GET', array('action' => 'default')),
+			new UrlScript('http://localhost/')
+		));
+	}
+
+
+	public function testSecuredFlag()
+	{
+		$router = new StaticRouter($this->tableOut, StaticRouter::SECURED);
+		Assert::same('https://localhost/', $router->constructUrl(
+			new AppRequest('Homepage', 'GET', array('action' => 'default')),
+			new UrlScript('http://localhost/')
+		));
+	}
+
 }
 
 $test = new StaticRouterTest;
