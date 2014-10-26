@@ -85,13 +85,12 @@ class StaticRouter extends Nette\Object implements IRouter
 			return NULL;
 		}
 
-		$presenter = $appRequest->getPresenterName();
 		$params = $appRequest->getParameters();
 		if (!isset($params['action']) || !is_string($params['action'])) {
 			return NULL;
 		}
 
-		$key = $presenter . ':' . $params['action'];
+		$key = $appRequest->getPresenterName() . ':' . $params['action'];
 		if (!isset($this->tableOut[$key])) {
 			return NULL;
 		}
