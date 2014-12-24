@@ -41,7 +41,7 @@ class StaticRouter extends Nette\Object implements IRouter
 	/**
 	 * Maps HTTP request to a Request object.
 	 *
-	 * @return AppRequest|NULL
+	 * @return Nette\Application\Request|NULL
 	 */
 	public function match(HttpRequest $httpRequest)
 	{
