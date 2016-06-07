@@ -170,13 +170,15 @@ class StaticRouterTest extends Tester\TestCase
 	}
 
 
-	public function testSecuredFlag()
+	public function testHttps()
 	{
-		$router = new StaticRouter($this->tableOut, StaticRouter::SECURED);
-		Assert::same('https://localhost/', $router->constructUrl(
-			new AppRequest('Homepage', 'GET', array('action' => 'default')),
-			new UrlScript('http://localhost/')
-		));
+		$router = new StaticRouter($this->tableOut);
+		$url = $router->constructUrl(
+			new AppRequest('Article', 'GET', array('action' => 'view')),
+			new UrlScript('https://localhost/')
+		);
+
+		Assert::same('https://localhost/view/', $url);
 	}
 
 }
