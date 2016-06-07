@@ -16,7 +16,7 @@
 	},
 	"require": {
 		"php": ">=5.3",
-		"nette/application": "~2.2"
+		"nette/application": "~2.2.0 | ~2.3.0"
 	},
 	"require-dev": {
 		"nette/tester": "~1.3"
