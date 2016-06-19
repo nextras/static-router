@@ -96,8 +96,7 @@ class StaticRouter extends Nette\Object implements IRouter
 		}
 
 		if ($this->lastRefUrl !== $refUrl) {
-			$scheme = ($this->flags & self::SECURED ? 'https' : 'http');
-			$this->lastBaseUrl = $scheme . '://' . $refUrl->getAuthority() . $refUrl->getBasePath();
+			$this->lastBaseUrl = $refUrl->getBaseUrl();
 			$this->lastRefUrl = $refUrl;
 		}
 
