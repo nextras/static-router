@@ -2,7 +2,6 @@
 
 namespace Nextras\Routing;
 
-use Nette;
 use Nette\Application\IRouter;
 use Nette\Application\Request as AppRequest;
 use Nette\Http\IRequest as HttpRequest;
@@ -12,7 +11,7 @@ use Nette\Http\Url;
 /**
  * Simple static router.
  */
-class StaticRouter extends Nette\Object implements IRouter
+class StaticRouter implements IRouter
 {
 	/** @var array (Presenter:action => slug) */
 	private $tableOut;
