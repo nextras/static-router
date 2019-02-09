@@ -29,22 +29,22 @@ class StaticRouterTest extends Tester\TestCase
 	/**
 	 * @dataProvider provideMatchData
 	 */
-	public function testMatch($fullUrl, $scriptPath, $presenter, array $params = array())
+	public function testMatch($fullUrl, $scriptPath, $presenter, array $expected = array())
 	{
 		$url = new UrlScript($fullUrl);
 		$url->setScriptPath($scriptPath);
 		$httpRequest = new HttpRequest($url);
 
 		$router = new StaticRouter($this->tableOut);
-		$appRequest = $router->match($httpRequest);
+		$params = $router->match($httpRequest);
 
 		if ($presenter === NULL) {
-			Assert::null($appRequest);
+			Assert::null($params);
 
 		} else {
-			Assert::type('Nette\Application\Request', $appRequest);
-			Assert::same($presenter, $appRequest->getPresenterName());
-			Assert::same($params, $appRequest->getParameters());
+			Assert::same($presenter, $params['presenter']);
+			unset($params['presenter']);
+			Assert::same($expected, $params);
 		}
 	}
 
@@ -110,12 +110,10 @@ class StaticRouterTest extends Tester\TestCase
 	{
 		$refUrl = new UrlScript('http://localhost/web/foo/bar/baz');
 		$refUrl->setScriptPath('/web/');
+		$params['presenter'] = $presenter;
 
 		$router = new StaticRouter($this->tableOut);
-		Assert::same($url, $router->constructUrl(
-			new AppRequest($presenter, 'GET', $params),
-			$refUrl
-		));
+		Assert::same($url, $router->constructUrl($params, $refUrl));
 	}
 
 
@@ -164,7 +162,7 @@ class StaticRouterTest extends Tester\TestCase
 	{
 		$router = new StaticRouter($this->tableOut, StaticRouter::ONE_WAY);
 		Assert::null($router->constructUrl(
-			new AppRequest('Homepage', 'GET', array('action' => 'default')),
+			array('presenter' => 'Homepage', 'action' => 'default'),
 			new UrlScript('http://localhost/')
 		));
 	}
@@ -174,7 +172,7 @@ class StaticRouterTest extends Tester\TestCase
 	{
 		$router = new StaticRouter($this->tableOut);
 		$url = $router->constructUrl(
-			new AppRequest('Article', 'GET', array('action' => 'view')),
+			array('presenter' => 'Article', 'action' => 'view'),
 			new UrlScript('https://localhost/')
 		);
 
