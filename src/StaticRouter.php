@@ -18,7 +18,7 @@ class StaticRouter implements IRouter
 	/** @var int */
 	private $flags;
 
-	/** @var Url|NULL */
+	/** @var Url|null */
 	private $lastRefUrl;
 
 	/** @var string */
@@ -50,7 +50,7 @@ class StaticRouter implements IRouter
 		}
 
 		if (!isset($destination)) {
-			return NULL;
+			return null;
 		}
 
 		$params = $httpRequest->getQuery();
@@ -68,16 +68,16 @@ class StaticRouter implements IRouter
 	public function constructUrl(array $params, Url $refUrl): ?string
 	{
 		if ($this->flags & self::ONE_WAY) {
-			return NULL;
+			return null;
 		}
 
 		if (!isset($params['action']) || !is_string($params['action'])) {
-			return NULL;
+			return null;
 		}
 
 		$key = $params['presenter'] . ':' . $params['action'];
 		if (!isset($this->tableOut[$key])) {
-			return NULL;
+			return null;
 		}
 
 		if ($this->lastRefUrl !== $refUrl) {
@@ -92,5 +92,4 @@ class StaticRouter implements IRouter
 
 		return $url;
 	}
-
 }

@@ -2,8 +2,6 @@
 
 namespace Nextras\Routing;
 
-use Nette;
-use Nette\Application\Request as AppRequest;
 use Nette\Http\Request as HttpRequest;
 use Nette\Http\UrlScript;
 use Tester;
@@ -18,18 +16,18 @@ require __DIR__ . '/../bootstrap.php';
 class StaticRouterTest extends Tester\TestCase
 {
 	/** @var array */
-	private $tableOut = array(
+	private $tableOut = [
 		'Homepage:default' => '',
 		'Homepage:index' => 'index.php',
 		'Article:view' => 'view/',
 		'Admin:Dashboard:view' => 'admin/dashboard',
-	);
+	];
 
 
 	/**
 	 * @dataProvider provideMatchData
 	 */
-	public function testMatch($fullUrl, $scriptPath, array $expected = NULL)
+	public function testMatch($fullUrl, $scriptPath, ?array $expected = null)
 	{
 		$url = new UrlScript($fullUrl);
 		$url->setScriptPath($scriptPath);
@@ -44,48 +42,48 @@ class StaticRouterTest extends Tester\TestCase
 
 	public function provideMatchData()
 	{
-		return array(
-			array(
+		return [
+			[
 				'http://localhost/web/',
 				'/web/',
-				array('presenter' => 'Homepage', 'action' => 'default')
-			),
-			array(
+				['presenter' => 'Homepage', 'action' => 'default'],
+			],
+			[
 				'http://localhost/web/index.php',
 				'/web/index.php',
-				array('presenter' => 'Homepage', 'action' => 'index')
-			),
-			array(
+				['presenter' => 'Homepage', 'action' => 'index'],
+			],
+			[
 				'http://localhost/web/view',
 				'/web/',
-				array('presenter' => 'Article', 'action' => 'view')
-			),
-			array(
+				['presenter' => 'Article', 'action' => 'view'],
+			],
+			[
 				'http://localhost/web/view/',
 				'/web/',
-				array('presenter' => 'Article', 'action' => 'view')
-			),
-			array(
+				['presenter' => 'Article', 'action' => 'view'],
+			],
+			[
 				'http://localhost/web/view?id=123&type=foo',
 				'/web/',
-				array('id' => '123', 'type' => 'foo', 'presenter' => 'Article', 'action' => 'view')
-			),
-			array(
+				['id' => '123', 'type' => 'foo', 'presenter' => 'Article', 'action' => 'view'],
+			],
+			[
 				'http://localhost/web/XXX/',
 				'/web/',
-				NULL
-			),
-			array(
+				null,
+			],
+			[
 				'http://localhost/view',
 				'/',
-				array('presenter' => 'Article', 'action' => 'view')
-			),
-			array(
+				['presenter' => 'Article', 'action' => 'view'],
+			],
+			[
 				'http://localhost/web/admin/dashboard',
 				'/web/',
-				array('presenter' => 'Admin:Dashboard', 'action' => 'view')
-			),
-		);
+				['presenter' => 'Admin:Dashboard', 'action' => 'view'],
+			],
+		];
 	}
 
 
@@ -104,35 +102,35 @@ class StaticRouterTest extends Tester\TestCase
 
 	public function provideConstructUrlData()
 	{
-		return array(
-			array(
-				array('presenter' => 'Homepage'),
-				NULL,
-			),
-			array(
-				array('presenter' => 'Homepage', 'action' => 'default'),
+		return [
+			[
+				['presenter' => 'Homepage'],
+				null,
+			],
+			[
+				['presenter' => 'Homepage', 'action' => 'default'],
 				'http://localhost/web/',
-			),
-			array(
-				array('presenter' => 'Article', 'action' => 'view'),
+			],
+			[
+				['presenter' => 'Article', 'action' => 'view'],
 				'http://localhost/web/view/',
-			),
-			array(
-				array('presenter' => 'Article', 'action' => 'view', 'a' => 1, 'b' => 2),
+			],
+			[
+				['presenter' => 'Article', 'action' => 'view', 'a' => 1, 'b' => 2],
 				'http://localhost/web/view/?a=1&b=2',
-			),
-			array(
-				array('presenter' => 'Article', 'action' => 'view', 'a' => NULL),
+			],
+			[
+				['presenter' => 'Article', 'action' => 'view', 'a' => null],
 				'http://localhost/web/view/',
-			),
-			array(
-				array('presenter' => 'Article', 'action' => 'edit', 'a' => 1, 'b' => 2), NULL
-			),
-			array(
-				array('presenter' => 'Admin:Dashboard', 'action' => 'view'),
+			],
+			[
+				['presenter' => 'Article', 'action' => 'edit', 'a' => 1, 'b' => 2], null,
+			],
+			[
+				['presenter' => 'Admin:Dashboard', 'action' => 'view'],
 				'http://localhost/web/admin/dashboard',
-			),
-		);
+			],
+		];
 	}
 
 
@@ -140,7 +138,7 @@ class StaticRouterTest extends Tester\TestCase
 	{
 		$router = new StaticRouter($this->tableOut, StaticRouter::ONE_WAY);
 		Assert::null($router->constructUrl(
-			array('presenter' => 'Homepage', 'action' => 'default'),
+			['presenter' => 'Homepage', 'action' => 'default'],
 			new UrlScript('http://localhost/')
 		));
 	}
@@ -150,14 +148,13 @@ class StaticRouterTest extends Tester\TestCase
 	{
 		$router = new StaticRouter($this->tableOut);
 		$url = $router->constructUrl(
-			array('presenter' => 'Article', 'action' => 'view'),
+			['presenter' => 'Article', 'action' => 'view'],
 			new UrlScript('https://localhost/')
 		);
 
 		Assert::same('https://localhost/view/', $url);
 	}
-
 }
 
-$test = new StaticRouterTest;
+$test = new StaticRouterTest();
 $test->run();
