@@ -44,7 +44,7 @@ class StaticRouter implements IRouter
 		$slug = rtrim($httpRequest->getUrl()->getRelativePath(), '/');
 		foreach ($this->tableOut as $destination2 => $slug2) {
 			if ($slug === rtrim($slug2, '/')) {
-				$destination = $destination2;
+				$destination = (string) $destination2;
 				break;
 			}
 		}
@@ -55,7 +55,7 @@ class StaticRouter implements IRouter
 
 		$params = $httpRequest->getQuery();
 		$pos = strrpos($destination, ':');
-		$params['presenter'] = substr($destination, 0, $pos);
+		$params['presenter'] = substr($destination, 0, (int) $pos);
 		$params['action'] = substr($destination, $pos + 1);
 
 		return $params;

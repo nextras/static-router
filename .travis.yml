@@ -8,7 +8,8 @@ before_script:
     - composer install --no-interaction
 
 script:
-    - ./vendor/bin/tester -s -p php ./tests/cases
+    - vendor/bin/tester tests/cases
+    - vendor/bin/phpstan analyse --level 7 src
 
 after_failure:
     # Print *.actual content & log content
