@@ -1,9 +1,8 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace Nextras\Routing;
 
 use Nette\Application\IRouter;
-use Nette\Application\Request as AppRequest;
 use Nette\Application\Routers\Route;
 use Nette\Application\Routers\RouteList;
 use Nette\Http\UrlScript;
@@ -11,16 +10,19 @@ use Nette\Http\Request as HttpRequest;
 
 require __DIR__ . '/../../vendor/autoload.php';
 
+class_exists(\Nette\Application\Helpers::class);
+class_exists(\Nette\Application\Routers\Route::class);
+class_exists(\Nette\Application\Routers\RouteList::class);
+class_exists(\Nette\Http\Request::class);
+class_exists(\Nette\Http\UrlScript::class);
+class_exists(\Nette\Utils\Callback::class);
+class_exists(\Nette\Utils\ObjectHelpers::class);
+class_exists(\Nette\Utils\Strings::class);
+class_exists(\Nextras\Routing\StaticRouter::class);
 
-class_exists('Nextras\Routing\StaticRouter');
-class_exists('Nette\Application\Routers\Route');
-class_exists('Nette\Application\Routers\RouteList');
-class_exists('Nette\Utils\Strings');
-class_exists('Nette\Utils\Callback');
-
-$routers = array(
+$routers = [
 	'StaticRoute' => function () {
-		$router = new StaticRouter(array(
+		$router = new StaticRouter([
 			'Aaaaaaaa:aaaaaaaa' => 'slug-aaaaaaaa',
 			'Bbbbbbbb:bbbbbbbb' => 'slug-bbbbbbbb',
 			'Cccccccc:cccccccc' => 'slug-cccccccc',
@@ -31,7 +33,7 @@ $routers = array(
 			'Zzzzzzzz:xxxxxxxx' => 'slug-xxxxxxxx',
 			'Zzzzzzzz:yyyyyyyy' => 'slug-yyyyyyyy',
 			'Zzzzzzzz:zzzzzzzz' => 'slug-zzzzzzzz',
-		));
+		]);
 
 		return $router;
 	},
@@ -53,7 +55,7 @@ $routers = array(
 	},
 
 	'Route + global filter' => function () {
-		$tableOut = array(
+		$tableOut = [
 			'Aaaaaaaa:aaaaaaaa' => 'slug-aaaaaaaa',
 			'Bbbbbbbb:bbbbbbbb' => 'slug-bbbbbbbb',
 			'Cccccccc:cccccccc' => 'slug-cccccccc',
@@ -64,10 +66,10 @@ $routers = array(
 			'Zzzzzzzz:xxxxxxxx' => 'slug-xxxxxxxx',
 			'Zzzzzzzz:yyyyyyyy' => 'slug-yyyyyyyy',
 			'Zzzzzzzz:zzzzzzzz' => 'slug-zzzzzzzz',
-		);
+		];
 
-		$router = new Route('[<slug .*>]', array(
-			NULL => array(
+		$router = new Route('[<slug .*>]', [
+			null => [
 				Route::FILTER_IN => function (array $params) use ($tableOut) {
 					foreach ($tableOut as $destination2 => $slug2) {
 						if ($params['slug'] === rtrim($slug2, '/')) {
@@ -77,7 +79,7 @@ $routers = array(
 					}
 
 					if (!isset($destination)) {
-						return NULL;
+						return null;
 					}
 
 					$pos = strrpos($destination, ':');
@@ -89,12 +91,12 @@ $routers = array(
 				},
 				Route::FILTER_OUT => function (array $params) use ($tableOut) {
 					if (!isset($params['presenter'], $params['action']) || !is_string($params['action'])) {
-						return NULL;
+						return null;
 					}
 
 					$key = $params['presenter'] . ':' . $params['action'];
 					if (!isset($tableOut[$key])) {
-						return NULL;
+						return null;
 					}
 
 					$params['slug'] = $tableOut[$key];
@@ -102,14 +104,14 @@ $routers = array(
 
 					return $params;
 				},
-			)
-		));
+			],
+		]);
 
 		return $router;
 	},
-);
+];
 
-$tests = array(
+$tests = [
 	'__construct' => function ($count, $routerFactory) {
 		for ($i = 0; $i < $count; $i++) {
 			$router = $routerFactory();
@@ -126,8 +128,7 @@ $tests = array(
 			$appRequest = $router->match($httpRequest);
 		}
 
-		assert($appRequest->getPresenterName() === 'Aaaaaaaa');
-		assert($appRequest->getParameters() === array('action' => 'aaaaaaaa'));
+		assert($appRequest === ['presenter' => 'Aaaaaaaa', 'action' => 'aaaaaaaa']);
 	},
 
 	'match-last' => function ($count, $routerFactory) {
@@ -138,8 +139,7 @@ $tests = array(
 			$appRequest = $router->match($httpRequest);
 		}
 
-		assert($appRequest->getPresenterName() === 'Zzzzzzzz');
-		assert($appRequest->getParameters() === array('action' => 'zzzzzzzz'));
+		assert($appRequest === ['presenter' => 'Zzzzzzzz', 'action' => 'zzzzzzzz']);
 	},
 
 	'match-invalid' => function ($count, $routerFactory) {
@@ -150,11 +150,11 @@ $tests = array(
 			$appRequest = $router->match($httpRequest);
 		}
 
-		assert($appRequest === NULL);
+		assert($appRequest === null);
 	},
 
 	'constructUrl-first' => function ($count, $routerFactory) {
-		$appRequest = new AppRequest('Aaaaaaaa', 'GET', array('action' => 'aaaaaaaa'));
+		$appRequest = ['presenter' => 'Aaaaaaaa', 'action' => 'aaaaaaaa'];
 		$refUrl = new UrlScript('http://localhost/');
 		$router = $routerFactory();
 
@@ -166,7 +166,7 @@ $tests = array(
 	},
 
 	'constructUrl-last' => function ($count, $routerFactory) {
-		$appRequest = new AppRequest('Zzzzzzzz', 'GET', array('action' => 'zzzzzzzz'));
+		$appRequest = ['presenter' => 'Zzzzzzzz', 'action' => 'zzzzzzzz'];
 		$refUrl = new UrlScript('http://localhost/');
 		$router = $routerFactory();
 
@@ -178,7 +178,7 @@ $tests = array(
 	},
 
 	'constructUrl-invalid' => function ($count, $routerFactory) {
-		$appRequest = new AppRequest('Invalid', 'GET', array('action' => 'default'));
+		$appRequest = ['presenter' => 'Invalid', 'action' => 'default'];
 		$refUrl = new UrlScript('http://localhost/');
 		$router = $routerFactory();
 
@@ -186,17 +186,17 @@ $tests = array(
 			$url = $router->constructUrl($appRequest, $refUrl);
 		}
 
-		assert($url === NULL);
+		assert($url === null);
 	},
-);
+];
 
-$testCount = 1000;
+$testCount = 10000;
 foreach ($tests as $testName => $testCallback) {
 	printf("Test %s:\n", $testName);
 	foreach ($routers as $routerName => $routerFactory) {
-		$time = -microtime(TRUE);
+		$time = -microtime(true);
 		$testCallback($testCount, $routerFactory);
-		$time += microtime(TRUE);
+		$time += microtime(true);
 		printf("  %-25s%5.0f ms\n", $routerName, $time * 1e3);
 	}
 	printf("\n");
