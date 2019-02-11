@@ -41,8 +41,7 @@ class StaticRouter implements IRouter
 	 */
 	public function match(HttpRequest $httpRequest): ?array
 	{
-		$url = $httpRequest->getUrl();
-		$slug = rtrim(substr($url->getPath(), strrpos($url->getScriptPath(), '/') + 1), '/');
+		$slug = rtrim($httpRequest->getUrl()->getRelativePath(), '/');
 		foreach ($this->tableOut as $destination2 => $slug2) {
 			if ($slug === rtrim($slug2, '/')) {
 				$destination = $destination2;
