@@ -27,7 +27,7 @@ class StaticRouterTest extends Tester\TestCase
 	/**
 	 * @dataProvider provideMatchData
 	 */
-	public function testMatch($fullUrl, $scriptPath, ?array $expected = null)
+	public function testMatch(string $fullUrl, string $scriptPath, ?array $expected = null): void
 	{
 		$url = new UrlScript($fullUrl);
 		$url->setScriptPath($scriptPath);
@@ -40,7 +40,7 @@ class StaticRouterTest extends Tester\TestCase
 	}
 
 
-	public function provideMatchData()
+	public function provideMatchData(): array
 	{
 		return [
 			[
@@ -90,7 +90,7 @@ class StaticRouterTest extends Tester\TestCase
 	/**
 	 * @dataProvider provideConstructUrlData
 	 */
-	public function testConstructUrl(array $params, $url)
+	public function testConstructUrl(array $params, ?string $url): void
 	{
 		$refUrl = new UrlScript('http://localhost/web/foo/bar/baz');
 		$refUrl->setScriptPath('/web/');
@@ -100,7 +100,7 @@ class StaticRouterTest extends Tester\TestCase
 	}
 
 
-	public function provideConstructUrlData()
+	public function provideConstructUrlData(): array
 	{
 		return [
 			[
@@ -134,7 +134,7 @@ class StaticRouterTest extends Tester\TestCase
 	}
 
 
-	public function testOneWayFlag()
+	public function testOneWayFlag(): void
 	{
 		$router = new StaticRouter($this->tableOut, StaticRouter::ONE_WAY);
 		Assert::null($router->constructUrl(
@@ -144,7 +144,7 @@ class StaticRouterTest extends Tester\TestCase
 	}
 
 
-	public function testHttps()
+	public function testHttps(): void
 	{
 		$router = new StaticRouter($this->tableOut);
 		$url = $router->constructUrl(
