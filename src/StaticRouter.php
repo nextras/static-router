@@ -3,7 +3,6 @@
 namespace Nextras\Routing;
 
 use Nette\Application\IRouter;
-use Nette\Application\Request as AppRequest;
 use Nette\Http\IRequest as HttpRequest;
 use Nette\Http\Url;
 
@@ -39,13 +38,10 @@ class StaticRouter implements IRouter
 
 	/**
 	 * Maps HTTP request to a Request object.
-	 *
-	 * @return AppRequest|NULL
 	 */
-	public function match(HttpRequest $httpRequest)
+	public function match(HttpRequest $httpRequest): ?array
 	{
-		$url = $httpRequest->getUrl();
-		$slug = rtrim(substr($url->getPath(), strrpos($url->getScriptPath(), '/') + 1), '/');
+		$slug = rtrim($httpRequest->getUrl()->getRelativePath(), '/');
 		foreach ($this->tableOut as $destination2 => $slug2) {
 			if ($slug === rtrim($slug2, '/')) {
 				$destination = $destination2;
@@ -59,37 +55,27 @@ class StaticRouter implements IRouter
 
 		$params = $httpRequest->getQuery();
 		$pos = strrpos($destination, ':');
-		$presenter = substr($destination, 0, $pos);
+		$params['presenter'] = substr($destination, 0, $pos);
 		$params['action'] = substr($destination, $pos + 1);
 
-		return new AppRequest(
-			$presenter,
-			$httpRequest->getMethod(),
-			$params,
-			$httpRequest->getPost(),
-			$httpRequest->getFiles(),
-			array(AppRequest::SECURED => $httpRequest->isSecured())
-		);
+		return $params;
 	}
 
 
 	/**
 	 * Constructs absolute URL from Request object.
-	 *
-	 * @return string|NULL
 	 */
-	public function constructUrl(AppRequest $appRequest, Url $refUrl)
+	public function constructUrl(array $params, Url $refUrl): ?string
 	{
 		if ($this->flags & self::ONE_WAY) {
 			return NULL;
 		}
 
-		$params = $appRequest->getParameters();
 		if (!isset($params['action']) || !is_string($params['action'])) {
 			return NULL;
 		}
 
-		$key = $appRequest->getPresenterName() . ':' . $params['action'];
+		$key = $params['presenter'] . ':' . $params['action'];
 		if (!isset($this->tableOut[$key])) {
 			return NULL;
 		}
@@ -99,7 +85,7 @@ class StaticRouter implements IRouter
 			$this->lastRefUrl = $refUrl;
 		}
 
-		unset($params['action']);
+		unset($params['presenter'], $params['action']);
 		$slug = $this->tableOut[$key];
 		$query = (($tmp = http_build_query($params)) ? '?' . $tmp : '');
 		$url = $this->lastBaseUrl . $slug . $query;

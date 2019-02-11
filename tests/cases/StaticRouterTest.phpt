@@ -29,23 +29,16 @@ class StaticRouterTest extends Tester\TestCase
 	/**
 	 * @dataProvider provideMatchData
 	 */
-	public function testMatch($fullUrl, $scriptPath, $presenter, array $params = array())
+	public function testMatch($fullUrl, $scriptPath, array $expected = NULL)
 	{
 		$url = new UrlScript($fullUrl);
 		$url->setScriptPath($scriptPath);
 		$httpRequest = new HttpRequest($url);
 
 		$router = new StaticRouter($this->tableOut);
-		$appRequest = $router->match($httpRequest);
+		$params = $router->match($httpRequest);
 
-		if ($presenter === NULL) {
-			Assert::null($appRequest);
-
-		} else {
-			Assert::type('Nette\Application\Request', $appRequest);
-			Assert::same($presenter, $appRequest->getPresenterName());
-			Assert::same($params, $appRequest->getParameters());
-		}
+		Assert::same($expected, $params);
 	}
 
 
@@ -55,32 +48,27 @@ class StaticRouterTest extends Tester\TestCase
 			array(
 				'http://localhost/web/',
 				'/web/',
-				'Homepage',
-				array('action' => 'default')
+				array('presenter' => 'Homepage', 'action' => 'default')
 			),
 			array(
 				'http://localhost/web/index.php',
 				'/web/index.php',
-				'Homepage',
-				array('action' => 'index')
+				array('presenter' => 'Homepage', 'action' => 'index')
 			),
 			array(
 				'http://localhost/web/view',
 				'/web/',
-				'Article',
-				array('action' => 'view')
+				array('presenter' => 'Article', 'action' => 'view')
 			),
 			array(
 				'http://localhost/web/view/',
 				'/web/',
-				'Article',
-				array('action' => 'view')
+				array('presenter' => 'Article', 'action' => 'view')
 			),
 			array(
 				'http://localhost/web/view?id=123&type=foo',
 				'/web/',
-				'Article',
-				array('id' => '123', 'type' => 'foo', 'action' => 'view')
+				array('id' => '123', 'type' => 'foo', 'presenter' => 'Article', 'action' => 'view')
 			),
 			array(
 				'http://localhost/web/XXX/',
@@ -90,14 +78,12 @@ class StaticRouterTest extends Tester\TestCase
 			array(
 				'http://localhost/view',
 				'/',
-				'Article',
-				array('action' => 'view')
+				array('presenter' => 'Article', 'action' => 'view')
 			),
 			array(
 				'http://localhost/web/admin/dashboard',
 				'/web/',
-				'Admin:Dashboard',
-				array('action' => 'view')
+				array('presenter' => 'Admin:Dashboard', 'action' => 'view')
 			),
 		);
 	}
@@ -106,16 +92,13 @@ class StaticRouterTest extends Tester\TestCase
 	/**
 	 * @dataProvider provideConstructUrlData
 	 */
-	public function testConstructUrl($presenter, $params, $url)
+	public function testConstructUrl(array $params, $url)
 	{
 		$refUrl = new UrlScript('http://localhost/web/foo/bar/baz');
 		$refUrl->setScriptPath('/web/');
 
 		$router = new StaticRouter($this->tableOut);
-		Assert::same($url, $router->constructUrl(
-			new AppRequest($presenter, 'GET', $params),
-			$refUrl
-		));
+		Assert::same($url, $router->constructUrl($params, $refUrl));
 	}
 
 
@@ -123,37 +106,30 @@ class StaticRouterTest extends Tester\TestCase
 	{
 		return array(
 			array(
-				'Homepage',
-				array(),
+				array('presenter' => 'Homepage'),
 				NULL,
 			),
 			array(
-				'Homepage',
-				array('action' => 'default'),
+				array('presenter' => 'Homepage', 'action' => 'default'),
 				'http://localhost/web/',
 			),
 			array(
-				'Article',
-				array('action' => 'view'),
+				array('presenter' => 'Article', 'action' => 'view'),
 				'http://localhost/web/view/',
 			),
 			array(
-				'Article',
-				array('action' => 'view', 'a' => 1, 'b' => 2),
+				array('presenter' => 'Article', 'action' => 'view', 'a' => 1, 'b' => 2),
 				'http://localhost/web/view/?a=1&b=2',
 			),
 			array(
-				'Article',
-				array('action' => 'view', 'a' => NULL),
+				array('presenter' => 'Article', 'action' => 'view', 'a' => NULL),
 				'http://localhost/web/view/',
 			),
 			array(
-				'Article',
-				array('action' => 'edit', 'a' => 1, 'b' => 2), NULL
+				array('presenter' => 'Article', 'action' => 'edit', 'a' => 1, 'b' => 2), NULL
 			),
 			array(
-				'Admin:Dashboard',
-				array('action' => 'view'),
+				array('presenter' => 'Admin:Dashboard', 'action' => 'view'),
 				'http://localhost/web/admin/dashboard',
 			),
 		);
@@ -164,7 +140,7 @@ class StaticRouterTest extends Tester\TestCase
 	{
 		$router = new StaticRouter($this->tableOut, StaticRouter::ONE_WAY);
 		Assert::null($router->constructUrl(
-			new AppRequest('Homepage', 'GET', array('action' => 'default')),
+			array('presenter' => 'Homepage', 'action' => 'default'),
 			new UrlScript('http://localhost/')
 		));
 	}
@@ -174,7 +150,7 @@ class StaticRouterTest extends Tester\TestCase
 	{
 		$router = new StaticRouter($this->tableOut);
 		$url = $router->constructUrl(
-			new AppRequest('Article', 'GET', array('action' => 'view')),
+			array('presenter' => 'Article', 'action' => 'view'),
 			new UrlScript('https://localhost/')
 		);
 
