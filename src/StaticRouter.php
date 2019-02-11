@@ -27,7 +27,7 @@ class StaticRouter implements IRouter
 
 	/**
 	 * @param array $routingTable Presenter:action => slug
-	 * @param int   $flags        IRouter::ONE_WAY, IRouter::SECURED
+	 * @param int   $flags        IRouter::ONE_WAY
 	 */
 	public function __construct(array $routingTable, int $flags = 0)
 	{
