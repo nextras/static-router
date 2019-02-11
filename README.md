@@ -13,7 +13,7 @@ Add to your composer.json:
 
 ```
 "require": {
-	"nextras/static-router": "~1.0"
+	"nextras/static-router": "~2.0"
 }
 ```
 
