@@ -71,7 +71,7 @@ class StaticRouter implements IRouter
 			return null;
 		}
 
-		if (!isset($params['action']) || !is_string($params['action'])) {
+		if (!isset($params['action'], $params['presenter']) || !is_string($params['action']) || !is_string($params['presenter'])) {
 			return null;
 		}
 
