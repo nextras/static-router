@@ -29,8 +29,7 @@ class StaticRouterTest extends Tester\TestCase
 	 */
 	public function testMatch(string $fullUrl, string $scriptPath, ?array $expected = null): void
 	{
-		$url = new UrlScript($fullUrl);
-		$url->setScriptPath($scriptPath);
+		$url = new UrlScript($fullUrl, $scriptPath);
 		$httpRequest = new HttpRequest($url);
 
 		$router = new StaticRouter($this->tableOut);
@@ -92,9 +91,7 @@ class StaticRouterTest extends Tester\TestCase
 	 */
 	public function testConstructUrl(array $params, ?string $url): void
 	{
-		$refUrl = new UrlScript('http://localhost/web/foo/bar/baz');
-		$refUrl->setScriptPath('/web/');
-
+		$refUrl = new UrlScript('http://localhost/web/foo/bar/baz', '/web/');
 		$router = new StaticRouter($this->tableOut);
 		Assert::same($url, $router->constructUrl($params, $refUrl));
 	}

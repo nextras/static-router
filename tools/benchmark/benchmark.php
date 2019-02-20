@@ -2,19 +2,20 @@
 
 namespace Nextras\Routing;
 
-use Nette\Application\IRouter;
-use Nette\Application\Routers\Route;
-use Nette\Application\Routers\RouteList;
 use Nette\Http\UrlScript;
 use Nette\Http\Request as HttpRequest;
+use Nette\Routing\Route;
+use Nette\Routing\RouteList;
+use Nette\Routing\Router;
 
 require __DIR__ . '/../../vendor/autoload.php';
 
-class_exists(\Nette\Application\Helpers::class);
-class_exists(\Nette\Application\Routers\Route::class);
-class_exists(\Nette\Application\Routers\RouteList::class);
+
 class_exists(\Nette\Http\Request::class);
+class_exists(\Nette\Http\Url::class);
 class_exists(\Nette\Http\UrlScript::class);
+class_exists(\Nette\Routing\Route::class);
+class_exists(\Nette\Routing\RouteList::class);
 class_exists(\Nette\Utils\Callback::class);
 class_exists(\Nette\Utils\ObjectHelpers::class);
 class_exists(\Nette\Utils\Strings::class);
@@ -40,16 +41,16 @@ $routers = [
 
 	'Route + RouteList' => function () {
 		$router = new RouteList();
-		$router[] = new Route('slug-aaaaaaaa', 'Aaaaaaaa:aaaaaaaa');
-		$router[] = new Route('slug-bbbbbbbb', 'Bbbbbbbb:bbbbbbbb');
-		$router[] = new Route('slug-cccccccc', 'Cccccccc:cccccccc');
-		$router[] = new Route('slug-dddddddd', 'Dddddddd:dddddddd');
-		$router[] = new Route('slug-eeeeeeee', 'Eeeeeeee:eeeeeeee');
-		$router[] = new Route('slug-vvvvvvvv', 'Zzzzzzzz:vvvvvvvv');
-		$router[] = new Route('slug-wwwwwwww', 'Zzzzzzzz:wwwwwwww');
-		$router[] = new Route('slug-xxxxxxxx', 'Zzzzzzzz:xxxxxxxx');
-		$router[] = new Route('slug-yyyyyyyy', 'Zzzzzzzz:yyyyyyyy');
-		$router[] = new Route('slug-zzzzzzzz', 'Zzzzzzzz:zzzzzzzz');
+		$router->addRoute('slug-aaaaaaaa', ['presenter' => 'Aaaaaaaa', 'action' => 'aaaaaaaa']);
+		$router->addRoute('slug-bbbbbbbb', ['presenter' => 'Bbbbbbbb', 'action' => 'bbbbbbbb']);
+		$router->addRoute('slug-cccccccc', ['presenter' => 'Cccccccc', 'action' => 'cccccccc']);
+		$router->addRoute('slug-dddddddd', ['presenter' => 'Dddddddd', 'action' => 'dddddddd']);
+		$router->addRoute('slug-eeeeeeee', ['presenter' => 'Eeeeeeee', 'action' => 'eeeeeeee']);
+		$router->addRoute('slug-vvvvvvvv', ['presenter' => 'Zzzzzzzz', 'action' => 'vvvvvvvv']);
+		$router->addRoute('slug-wwwwwwww', ['presenter' => 'Zzzzzzzz', 'action' => 'wwwwwwww']);
+		$router->addRoute('slug-xxxxxxxx', ['presenter' => 'Zzzzzzzz', 'action' => 'xxxxxxxx']);
+		$router->addRoute('slug-yyyyyyyy', ['presenter' => 'Zzzzzzzz', 'action' => 'yyyyyyyy']);
+		$router->addRoute('slug-zzzzzzzz', ['presenter' => 'Zzzzzzzz', 'action' => 'zzzzzzzz']);
 
 		return $router;
 	},
@@ -117,7 +118,7 @@ $tests = [
 			$router = $routerFactory();
 		}
 
-		assert($router instanceof IRouter);
+		assert($router instanceof Router);
 	},
 
 	'match-first' => function ($count, $routerFactory) {

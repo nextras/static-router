@@ -2,15 +2,15 @@
 
 namespace Nextras\Routing;
 
-use Nette\Application\IRouter;
 use Nette\Http\IRequest as HttpRequest;
-use Nette\Http\Url;
+use Nette\Http\UrlScript;
+use Nette\Routing\Router;
 
 
 /**
  * Simple static router.
  */
-class StaticRouter implements IRouter
+class StaticRouter implements Router
 {
 	/** @var array (Presenter:action => slug) */
 	private $tableOut;
@@ -18,7 +18,7 @@ class StaticRouter implements IRouter
 	/** @var int */
 	private $flags;
 
-	/** @var Url|null */
+	/** @var UrlScript */
 	private $lastRefUrl;
 
 	/** @var string */
@@ -65,7 +65,7 @@ class StaticRouter implements IRouter
 	/**
 	 * Constructs absolute URL from Request object.
 	 */
-	public function constructUrl(array $params, Url $refUrl): ?string
+	public function constructUrl(array $params, UrlScript $refUrl): ?string
 	{
 		if ($this->flags & self::ONE_WAY) {
 			return null;
