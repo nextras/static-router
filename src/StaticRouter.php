@@ -12,7 +12,7 @@ use Nette\Routing\Router;
  */
 class StaticRouter implements Router
 {
-	/** @var array (Presenter:action => slug) */
+	/** @var array<string, string> (Presenter:action => slug) */
 	private $tableOut;
 
 	/** @var int */
@@ -26,8 +26,8 @@ class StaticRouter implements Router
 
 
 	/**
-	 * @param array $routingTable Presenter:action => slug
-	 * @param int   $flags        IRouter::ONE_WAY
+	 * @param array<string, string> $routingTable Presenter:action => slug
+	 * @param int                   $flags        Router::ONE_WAY
 	 */
 	public function __construct(array $routingTable, int $flags = 0)
 	{
@@ -38,6 +38,7 @@ class StaticRouter implements Router
 
 	/**
 	 * Maps HTTP request to a Request object.
+	 * @return array<string, mixed>
 	 */
 	public function match(HttpRequest $httpRequest): ?array
 	{
@@ -64,6 +65,7 @@ class StaticRouter implements Router
 
 	/**
 	 * Constructs absolute URL from Request object.
+	 * @param array<string, mixed> $params
 	 */
 	public function constructUrl(array $params, UrlScript $refUrl): ?string
 	{
